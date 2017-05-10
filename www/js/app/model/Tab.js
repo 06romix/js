@@ -5,6 +5,7 @@ define(function () {
     self.id = id;
     self.source = document.getElementById(id);
     self.article = null;
+    self._nav = null;
     self.tabs = tabs;
     self.tabs.addTab(self);
 
@@ -20,6 +21,9 @@ define(function () {
       if (self.getArticle() !== null && self.getArticle().tagName === 'ARTICLE') {
         self.article.remove();
       }
+      if (self.nav()) {
+        self.nav().innerHTML = '';
+      }
       return self;
     };
 
@@ -32,6 +36,19 @@ define(function () {
       return false;
     };
   }
+
+  Tab.prototype = {
+    nav: function (button) {
+      if (!arguments.length) {
+        if (this._nav === null) {
+          this._nav = document.getElementById('right-nav');
+        }
+        return this._nav;
+      }
+      this._nav = button;
+      return this;
+    }
+  };
 
   return Tab;
 });

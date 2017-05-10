@@ -1,23 +1,39 @@
+body {
+  width: 1000px;
+  margin: 0 auto;
+}
+
 #arena {
   width: 800px;
   height: 500px;
+  background: url('www/img/bg.jpg') center repeat;
+  margin: 0 auto;
 }
 
 #arena td {
   width: 90px;
   height: 90px;
-  background-color: #107e2d;
+  background-color: rgba(229, 229, 229, 0.24);
   text-align: center;
+  position: relative;
+}
+#arena td.light {
+  background: url("www/img/td_bg.png") rgba(0, 0, 0, 0);
 }
 
-td > div, #army-holder > article, .army-list {
-  font-family: fantasyIcon, monospace;
-  font-size: 50px;
-  line-height: 50px;
+img.unit-icon {
+  height: 80px;
+  width: 80px;
 }
 
-td > div.blue {
-  color: #06064c;
+#arena input {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+
+div.wrapper > nav > button {
+
 }
 
 button {
@@ -29,9 +45,40 @@ button:hover {
   background-color: darkgray;
 }
 
-header > nav > button {
+#right-nav {
+  text-align: right;
+}
+
+header {
+  width: 100%;
+}
+
+header > nav {
+  width: 49%;
+  display: inline-block;
+}
+
+header > nav > button, div.wrapper > nav > button {
   padding: 5px 15px;
   margin: 3px;
   font-size: 20px;
   font-family: fantasy;
+}
+
+#army-list input {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+
+#army-list div {
+  position: relative;
+  display: inline-block;
+  width: 90px;
+  height: 90px;
+}
+
+div.wrapper {
+  padding-top: 15px;
+  text-align: center;
 }

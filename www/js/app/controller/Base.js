@@ -1,7 +1,10 @@
-define(function () {
+define(['../model/Player'], function (Player) {
   function ControllerBase(id) {
+    var self = this;
     this.id = id;
     this.army = {blue: null, red: null};
+    this._players = {};
+    this.inBattle = false;
   }
 
   ControllerBase.prototype = {
@@ -9,12 +12,18 @@ define(function () {
       this.tabs = tabs;
     },
 
-    setBlueArmy: function(army) {
-      this.army.blue = army;
+    player: function(player) {
+      if (!arguments.length) {
+        return this._players;
+      }
+      if (player instanceof Player) {
+        this.addPlayer(player)
+      }
     },
 
-    setRedArmy: function(army) {
-      this.army.red = army;
+    addPlayer: function(player) {
+      this._players[+player.getId()] = player;
+      this.army[player.army().config.side] = player.army();
     },
 
     setArena: function(Arena) {
@@ -23,6 +32,7 @@ define(function () {
 
     setInBattle: function(inBattle) {
       this.inBattle = inBattle;
+      window.inBattle = inBattle;
     },
 
     showArmy: function() {
@@ -50,9 +60,11 @@ define(function () {
         return;
       }
       var hld = this.tabs.tabs['arena-holder'];
-      console.log();
       if (hld.switch() && hld.getArticle().tagName === 'ARTICLE') {
-        hld.article.appendChild(this.arena.getArena());
+        console.log(this.arena.getArena());
+        hld.article.appendChild(this.arena.getArena().arena);
+        var navHld = document.getElementById('right-nav');
+        navHld.appendChild(this.arena.getArena().nav);
         window.currentUnit = {blue: null, red: null};
         window.side = 'blue';
       }

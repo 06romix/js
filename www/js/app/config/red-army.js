@@ -1,6 +1,6 @@
 define(function () {
   return {
-    side: 'blue',
+    side: 'red',
     units: [
       {
         type: 'm',

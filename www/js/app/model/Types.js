@@ -1,8 +1,10 @@
 define(function () {
+  var colorType = 'color';
+  // var colorType = 'black';
   return {
     w: {
       name: 'warrior',
-      icon: 'ra-sword',
+      icon: colorType + '_' + 'warrior',
       hp: 100,
       dmg: 30,
       range: 1,
@@ -10,7 +12,7 @@ define(function () {
     },
     a: {
       name: 'archer',
-      icon: 'ra-archer',
+      icon: colorType + '_' + 'archer',
       hp: 75,
       dmg: 40,
       range: 4,
@@ -18,7 +20,7 @@ define(function () {
     },
     m: {
       name: 'magic',
-      icon: 'ra-crystal-wand',
+      icon: colorType + '_' + 'mage',
       hp: 50,
       dmg: 50,
       range: 2,

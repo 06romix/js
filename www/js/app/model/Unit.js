@@ -5,9 +5,11 @@ define(['./Types'], function (types) {
     self.id = id;
     self.side = side;
     self.type = (config.hasOwnProperty('type')) ? config.type : null;
-    self.pos = (config.hasOwnProperty('position')) ? config.position : null;
+    self._pos = (config.hasOwnProperty('position')) ? config.position : null;
     self.buff = (config.hasOwnProperty('buff')) ? config.buff : null;
-    // self.html = null;
+    self.typeConfig = (types[self.type]) ? types[self.type] : null;
+    self.start = 2;
+    self._light = false;
 
     self.toHtml = function () {
       // if (!self.html) {
@@ -15,13 +17,15 @@ define(['./Types'], function (types) {
       div.setAttribute('id', id);
       div.className = self.side + ' ra-hover';
       var input = document.createElement('input');
-      input.setAttribute('id', 'chb' + id);
-      input.setAttribute('type', 'checkbox');
+      input.setAttribute('id', 'i' + id);
+      input.setAttribute('type', 'radio');
+      input.setAttribute('name', self.side);
       var label = document.createElement('label');
       label.appendChild(input);
-      var i = document.createElement('i');
-      i.className = 'ra ' + types[self.type].icon;
-      label.appendChild(i);
+      var img = document.createElement('img');
+      img.src = 'img/' + types[self.type].icon + '.png';
+      img.className = 'unit-icon';
+      label.appendChild(img);
       div.appendChild(label);
       self.html = div;
       // }
@@ -34,16 +38,80 @@ define(['./Types'], function (types) {
       return this.side;
     },
 
-    attack: function () {
-
+    pos: function (pos) {
+      if (!arguments.length) {
+        return this._pos;
+      }
+      this._pos = pos;
+      return this._pos;
     },
 
-    move: function () {
+    validStartPosition: function (pos) {
+      return String(pos).charAt(1) <= this.start;
+    },
 
+    showMoveVariants: function () {
+      if (this._light) return;
+      if (!window.inBattle) {
+        var arr = document.querySelectorAll('#arena td');
+        arr.forEach(function (td) {
+          if (this.validStartPosition(td.getAttribute('id')) && !td.hasChildNodes()) {
+            this.highlight(td);
+          }
+        }, this);
+      }
+      this._light = true;
+    },
+
+    hideMoveVariants: function () {
+      if (!this._light) return;
+      if (!window.inBattle) {
+        var arr = document.querySelectorAll('#arena td');
+        arr.forEach(function (td) {
+          this.disableLight(td);
+        }, this);
+      }
+      this._light = false;
+    },
+
+    highlight: function (element) {
+      if (element.className) {
+        element.className += ' light';
+      } else {
+        element.className = 'light';
+      }
+    },
+
+    disableLight: function (element) {
+      element.className = '';
+    },
+
+    attack: function () {
+      console.log('attack');
+      this.finishCourse();
+    },
+
+    move: function (position) {
+      console.log('move to: ' + position);
+      console.log(this.typeConfig.agl);
+      if (position < 11 || position > 58) {
+        console.error('!');
+        return false;
+      }
+
+      var td = document.getElementById(position);
+
+      if (!this.pos() && this.validStartPosition(position) && !td.hasChildNodes()
+        || !window.inBattle && !td.hasChildNodes() && this.validStartPosition(position)
+      ) {
+        td.appendChild(document.getElementById(this.id));
+      }
+      this.finishCourse();
     },
 
     die: function () {
-
+      console.log('die');
+      this.finishCourse();
     },
 
     canBuff: function () {
@@ -52,6 +120,17 @@ define(['./Types'], function (types) {
 
     buff: function (unit) {
       //TODO: buff
+      this.finishCourse();
+    },
+
+    finishCourse: function () {
+      this.deselect();
+      this.hideMoveVariants()
+    },
+
+    deselect: function () {
+      document.getElementById('i' + this.id).checked = false;
+      window.currentUnit.blue = null;
     }
   };
 

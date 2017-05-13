@@ -8,7 +8,7 @@ define(function () {
       hp: 100,
       dmg: 30,
       range: 1,
-      agl: 3,
+      mSpeed: 3,
     },
     a: {
       name: 'archer',
@@ -16,7 +16,7 @@ define(function () {
       hp: 75,
       dmg: 40,
       range: 4,
-      agl: 2,
+      mSpeed: 2,
     },
     m: {
       name: 'magic',
@@ -24,7 +24,15 @@ define(function () {
       hp: 50,
       dmg: 50,
       range: 2,
-      agl: 2,
-    }
+      mSpeed: 2,
+    },
+    t: {
+      name: 'tank',
+      icon: colorType + '_' + 'tank',
+      hp: 150,
+      dmg: 30,
+      range: 1,
+      mSpeed: 3,
+    },
   };
 });

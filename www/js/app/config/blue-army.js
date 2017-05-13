@@ -4,11 +4,11 @@ define(function () {
     units: [
       {
         type: 'm',
-        position: 11,
+        position: 30,
       },
       {
         type: 'w',
-        position: 12,
+        position: 21,
       },
       {
         type: 'w',
@@ -18,7 +18,7 @@ define(function () {
       },
       {
         type: 'w',
-        position: 32,
+        position: 61,
       },
     ],
   }

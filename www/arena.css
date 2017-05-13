@@ -4,9 +4,9 @@ body {
 }
 
 #arena {
-  width: 800px;
+  /*width: 800px;*/
   height: 500px;
-  background: url('www/img/bg.jpg') center repeat;
+  background: url('img/bg.jpg') center repeat;
   margin: 0 auto;
 }
 
@@ -18,7 +18,7 @@ body {
   position: relative;
 }
 #arena td.light {
-  background: url("www/img/td_bg.png") rgba(0, 0, 0, 0);
+  background: url("img/td_bg.png") rgba(0, 0, 0, 0);
 }
 
 img.unit-icon {

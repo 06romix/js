@@ -3,22 +3,24 @@ define(function () {
     side: 'red',
     units: [
       {
-        type: 'm',
-        position: 11,
+        type: 'a',
+        position: 50,
       },
       {
-        type: 'w',
-        position: 12,
+        type: 't',
+        position: 41,
       },
       {
         type: 'a',
-      },
-      {
-        type: 'a',
+        position: 30,
       },
       {
         type: 'w',
-        position: 32,
+        position: 21,
+      },
+      {
+        type: 'w',
+        position: 61,
       },
     ],
   }

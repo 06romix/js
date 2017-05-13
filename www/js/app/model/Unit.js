@@ -1,29 +1,33 @@
-define(['./Types'], function (types) {
+define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abstract) {
 
   function Unit(id, config, side) {
     var self = this;
-    self.id = id;
-    self.side = side;
-    self.type = (config.hasOwnProperty('type')) ? config.type : null;
-    self._pos = (config.hasOwnProperty('position')) ? config.position : null;
-    self.buff = (config.hasOwnProperty('buff')) ? config.buff : null;
-    self.typeConfig = (types[self.type]) ? types[self.type] : null;
-    self.start = 2;
+    self.id   = id;
+    self._side = side;
+    self.type       = (config.hasOwnProperty('type'))     ? config.type      : null;
+    self._pos       = (config.hasOwnProperty('position')) ? config.position  : null;
+    self._buff      = (config.hasOwnProperty('buff'))     ? config.buff      : null;
+    self.typeConfig = (types[self.type])                  ? types[self.type] : null;
+    self.start  = 1;
+    self.Move = move;
     self._light = false;
+    self.initPosBySide();
+    self.mX = 9;
+    self.mY = 7;
 
     self.toHtml = function () {
       // if (!self.html) {
       var div = document.createElement('div');
       div.setAttribute('id', id);
-      div.className = self.side + ' ra-hover';
+      div.className = self.getSide() + ' ra-hover';
       var input = document.createElement('input');
       input.setAttribute('id', 'i' + id);
       input.setAttribute('type', 'radio');
-      input.setAttribute('name', self.side);
+      input.setAttribute('name', self.getSide());
       var label = document.createElement('label');
       label.appendChild(input);
       var img = document.createElement('img');
-      img.src = 'img/' + types[self.type].icon + '.png';
+      img.src = 'img/' + self.typeConfig.icon + '.png';
       img.className = 'unit-icon';
       label.appendChild(img);
       div.appendChild(label);
@@ -33,68 +37,77 @@ define(['./Types'], function (types) {
     };
   }
 
-  Unit.prototype = {
-    getSide: function () {
-      return this.side;
-    },
+  Unit.prototype = Object.create(Abstract.prototype);
 
-    pos: function (pos) {
+
+  Unit.prototype.getMoveSpeed = function () {
+      return this.typeConfig.mSpeed;
+  };
+
+  Unit.prototype.pos = function (pos) {
       if (!arguments.length) {
         return this._pos;
       }
       this._pos = pos;
       return this._pos;
-    },
+  };
 
-    validStartPosition: function (pos) {
-      return String(pos).charAt(1) <= this.start;
-    },
+  Unit.prototype.initPosBySide = function () {
+      if (this.getSide() == 'red') {
+        var y = String(this.pos()).charAt(0);
+        var x = String(this.pos()).charAt(1);
+        this.pos(y + (Math.abs(+x - 8) + 1));
+      }
+  };
 
-    showMoveVariants: function () {
+  Unit.prototype.validStartPosition = function (pos) {
+      return this.getSide() == 'blue'
+        ? (String(pos).charAt(1) <= this.start)
+        : ((Math.abs(String(pos).charAt(1) - this.mX) + 1) >= Math.abs(this.start - this.mX) + 1);
+  };
+
+  Unit.prototype.showMoveVariants = function () {
       if (this._light) return;
-      if (!window.inBattle) {
-        var arr = document.querySelectorAll('#arena td');
-        arr.forEach(function (td) {
-          if (this.validStartPosition(td.getAttribute('id')) && !td.hasChildNodes()) {
-            this.highlight(td);
-          }
-        }, this);
-      }
+      var arr = document.querySelectorAll('#arena td');
+      arr.forEach(function (td) {
+        if (!td.hasChildNodes() && (
+          !window.inBattle && this.validStartPosition(td.getAttribute('id'))
+          || window.inBattle && this.Move.canMove(this.pos(), td.getAttribute('id'), this.getMoveSpeed()))
+        ) {
+          this.highlight(td);
+        }
+      }, this);
       this._light = true;
-    },
+  };
 
-    hideMoveVariants: function () {
-      if (!this._light) return;
-      if (!window.inBattle) {
-        var arr = document.querySelectorAll('#arena td');
-        arr.forEach(function (td) {
-          this.disableLight(td);
-        }, this);
-      }
+  Unit.prototype.hideMoveVariants = function () {
+      var arr = document.querySelectorAll('#arena td');
+      arr.forEach(function (td) {
+        this.disableLight(td);
+      }, this);
       this._light = false;
-    },
+  };
 
-    highlight: function (element) {
+  Unit.prototype.highlight = function (element) {
       if (element.className) {
         element.className += ' light';
       } else {
         element.className = 'light';
       }
-    },
+  };
 
-    disableLight: function (element) {
+  Unit.prototype.disableLight = function (element) {
       element.className = '';
-    },
+  };
 
-    attack: function () {
+  Unit.prototype.attack = function () {
       console.log('attack');
       this.finishCourse();
-    },
+  };
 
-    move: function (position) {
+  Unit.prototype.move = function (position) {
       console.log('move to: ' + position);
-      console.log(this.typeConfig.agl);
-      if (position < 11 || position > 58) {
+      if (position < 10 || position > +(this.mY + '' + this.mX)) {
         console.error('!');
         return false;
       }
@@ -103,35 +116,36 @@ define(['./Types'], function (types) {
 
       if (!this.pos() && this.validStartPosition(position) && !td.hasChildNodes()
         || !window.inBattle && !td.hasChildNodes() && this.validStartPosition(position)
+        || window.inBattle && this.Move.canMove(this.pos(), position, this.getMoveSpeed())
       ) {
         td.appendChild(document.getElementById(this.id));
+        this.pos(position);
       }
       this.finishCourse();
-    },
+  };
 
-    die: function () {
+  Unit.prototype.die = function () {
       console.log('die');
       this.finishCourse();
-    },
+  };
 
-    canBuff: function () {
-      return this.buff;
-    },
+  Unit.prototype.canBuff = function () {
+      return this._buff;
+  };
 
-    buff: function (unit) {
+  Unit.prototype.buff = function (unit) {
       //TODO: buff
       this.finishCourse();
-    },
+  };
 
-    finishCourse: function () {
+  Unit.prototype.finishCourse = function () {
       this.deselect();
-      this.hideMoveVariants()
-    },
+      this.hideMoveVariants();
+  };
 
-    deselect: function () {
+  Unit.prototype.deselect = function () {
       document.getElementById('i' + this.id).checked = false;
       window.currentUnit.blue = null;
-    }
   };
 
   return Unit;

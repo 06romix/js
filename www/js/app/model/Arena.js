@@ -1,13 +1,14 @@
-define(function () {
+define(['./Abstract'], function (Abstract) {
   function Arena(army) {
     var self = this;
     self._arena = null;
     self._arenaNav = null;
     self.blue = army.blue;
     self.red = army.red;
+    self.redPlayer = null;
 
     self.init = function() {
-      window.start = self.start;
+      window.start = self.start.bind(self);
       var a = document.querySelector('#arena-holder > article');
       self._arenaNav = self.getButton(); // arena navigation
       if (typeof a === 'object' && a !== null && a.hasChildNodes()) {
@@ -20,32 +21,39 @@ define(function () {
         var table = document.createElement('table');
         table.setAttribute('id', 'arena');
         var r = 0;
-        while (++r <= 5) {
+        while (++r <= 7) {
           var c = 0;
           var tr = document.createElement('tr');
-          while (++c <= 8) {
+          while (c <= 9) {
             var td = document.createElement('td');
             td.setAttribute('id', r + '' + c);
             tr.appendChild(td);
+            c++;
           }
           table.appendChild(tr);
         }
-        table.onclick = function(event) {
+
+        table.onclick = function(event) { // set onclick function
           var target = event.target;
 
           switch (target.tagName) {
             case 'TD':
-              self.doSomething(target);
+              self.move(target);
               break;
             case 'IMG':
-              self.blue.selectUnit(target, self.blue.units);
+              var targetInfo = self.getInfoByDiv(target.parentNode.parentNode);
+              if (targetInfo.side == 'blue') {
+                self.blue.selectUnit(target);
+              } else {
+                self.attack(targetInfo);
+              }
               break;
           }
         };
 
         self._arena.appendChild(table);
         // arena fill
-        self.prepareArena();
+        self.prepareArena(self.blue);
         // army list
         self._arena.appendChild(self.blue.getArmyList());
       }
@@ -59,67 +67,73 @@ define(function () {
     };
   }
 
-  Arena.prototype = {
-    getButton: function () {
-      if (this._arenaNav === null) {
-        var btn = document.createElement('button');
-        btn.className = 'start';
-        btn.innerText = 'Start';
-        btn.onclick = function () {
-          var army = document.getElementById('army-list');
-          if (!army.hasChildNodes() || confirm('Don\'t use all units?')) {
-              window.start();
-          }
-        };
-        this._arenaNav = btn;
-      }
-      return this._arenaNav;
-    },
+  Arena.prototype = Object.create(Abstract.prototype);
 
-    doSomething: function (target) {
-      if (!window.inBattle) {
-        if (target.tagName == 'TD' && !target.hasChildNodes() && window.currentUnit.blue) {
-          window.currentUnit.blue.move(target.getAttribute('id'));
+  Arena.prototype.getButton = function () {
+    if (this._arenaNav === null) {
+      var btn = document.createElement('button');
+      btn.className = 'start';
+      btn.innerText = 'Start';
+      btn.onclick = function () {
+        var army = document.getElementById('army-list');
+        if (!army.hasChildNodes() || confirm('Don\'t use all units?')) {
+            window.start();
         }
-        console.log(target);
+      };
+      this._arenaNav = btn;
+    }
+    return this._arenaNav;
+  };
+
+  Arena.prototype.move = function (target) {
+    if (!window.inBattle) {
+      if (target.tagName == 'TD' && !target.hasChildNodes() && window.currentUnit.blue) {
+        window.currentUnit.blue.move(target.getAttribute('id'));
+      }
+    } else {
+      if (window.currentUnit.blue) {
+        var position = target.getAttribute('id');
+        if (!target.hasChildNodes()) {
+          window.currentUnit.blue.move(position);
+        }
       } else {
-        if (window.currentUnit.blue) {
-          var position = target.getAttribute('id');
-          if (target.hasChildNodes()) {
-            var unit = this.getUnitByPosition(target.getAttribute('id'));
-            if (unit.getSide() === window.side) {
-              if (window.currentUnit.blue.canBuff()) {
-                window.currentUnit.blue.buff(unit); // Buff unit
-              }
-            } else {
-              window.currentUnit.blue.attack(unit);
-            }
-          } else {
-            window.currentUnit.blue.move(position);
-          }
+        console.log('-');
+      }
+    }
+  };
+
+  Arena.prototype.attack = function (targetInfo) {
+    var unit = this.red.units[targetInfo.id];
+    if (window.currentUnit.blue) {
+      window.currentUnit.blue.attack(unit);
+    }
+  };
+
+  Arena.prototype.prepareArena = function (army) {
+    army.units.forEach(function (unit) {
+      if (unit.pos()) {
+        console.log(unit.pos());
+        var td = this._arena.querySelector('td[id="' + unit.pos() + '"]');
+        if (td && !td.hasChildNodes()) {
+          td.appendChild(unit.toHtml());
         } else {
-          console.log('-');
+          console.error('td has child, id: ' + td.getAttribute('id'));
         }
       }
-    },
+    }, this);
+  };
 
-    getUnitByPosition: function (position) {
+  Arena.prototype.start = function () {
+    console.log('start');
+    this.showRedArmy();
+    this.blue.removeArmyList();
+    window.inBattle = true;
+    document.getElementsByClassName('start')[0].remove();
+  };
 
-    },
-
-    prepareArena: function () {
-      this.blue.units.forEach(function (unit) {
-        if (unit.pos()) {
-          var td = this._arena.querySelector('td[id="' + unit.pos() + '"]');
-          if (td && !td.hasChildNodes()) {
-            td.appendChild(unit.toHtml());
-          }
-        }
-      }, this);
-    },
-
-    start: function () {
-      console.log('start');
+  Arena.prototype.showRedArmy = function () {
+    if (this.redPlayer) {
+      this.prepareArena(this.red);
     }
   };
 

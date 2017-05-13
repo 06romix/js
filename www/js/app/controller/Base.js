@@ -1,10 +1,11 @@
 define(['../model/Player'], function (Player) {
   function ControllerBase(id) {
     var self = this;
-    this.id = id;
-    this.army = {blue: null, red: null};
-    this._players = {};
-    this.inBattle = false;
+    self.id = id;
+    self.army = {blue: null, red: null};
+    self._arena = null;
+    self._players = {};
+    self.inBattle = false;
   }
 
   ControllerBase.prototype = {
@@ -22,12 +23,15 @@ define(['../model/Player'], function (Player) {
     },
 
     addPlayer: function(player) {
-      this._players[+player.getId()] = player;
-      this.army[player.army().config.side] = player.army();
+      this._players[player.side()] = player;
+      this.army[player.side()] = player.army();
     },
 
     setArena: function(Arena) {
-      this.arena = new Arena(this.army);
+      this._arena = new Arena(this.army);
+      if (this.player().red instanceof Player && this.player().red.side() == 'red') {
+        this._arena.redPlayer = this.player().red;
+      }
     },
 
     setInBattle: function(inBattle) {
@@ -61,10 +65,10 @@ define(['../model/Player'], function (Player) {
       }
       var hld = this.tabs.tabs['arena-holder'];
       if (hld.switch() && hld.getArticle().tagName === 'ARTICLE') {
-        console.log(this.arena.getArena());
-        hld.article.appendChild(this.arena.getArena().arena);
+        console.log(this._arena.getArena());
+        hld.article.appendChild(this._arena.getArena().arena);
         var navHld = document.getElementById('right-nav');
-        navHld.appendChild(this.arena.getArena().nav);
+        navHld.appendChild(this._arena.getArena().nav);
         window.currentUnit = {blue: null, red: null};
         window.side = 'blue';
       }

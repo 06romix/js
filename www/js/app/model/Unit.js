@@ -1,15 +1,15 @@
-define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abstract) {
+define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack'], function (Types, Abstract, Move, Attack) {
 
   function Unit(id, config, side) {
     var self = this;
     self.id   = id;
     self._side = side;
-    self.type       = (config.hasOwnProperty('type'))     ? config.type      : null;
-    self._pos       = (config.hasOwnProperty('position')) ? config.position  : null;
-    self._buff      = (config.hasOwnProperty('buff'))     ? config.buff      : null;
-    self.typeConfig = (types[self.type])                  ? types[self.type] : null;
+    self._pos  = (config.hasOwnProperty('position')) ? config.position  : null;
+    self._buff = (config.hasOwnProperty('buff'))     ? config.buff      : null;
+    self.Type = Types.getTypeInfo(config.type);
+    self.Move = Move;
+    self.Attack = new Attack();
     self.start  = 1;
-    self.Move = move;
     self._light = false;
     self.initPosBySide();
     self.mX = 9;
@@ -27,9 +27,12 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
       var label = document.createElement('label');
       label.appendChild(input);
       var img = document.createElement('img');
-      img.src = 'img/' + self.typeConfig.icon + '.png';
+      img.src = 'img/' + self.Type.getIcon() + '.png';
       img.className = 'unit-icon';
       label.appendChild(img);
+      var hp = document.createElement('div');
+      hp.className = 'health-bar';
+      label.appendChild(hp);
       div.appendChild(label);
       self.html = div;
       // }
@@ -38,11 +41,6 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
   }
 
   Unit.prototype = Object.create(Abstract.prototype);
-
-
-  Unit.prototype.getMoveSpeed = function () {
-      return this.typeConfig.mSpeed;
-  };
 
   Unit.prototype.pos = function (pos) {
       if (!arguments.length) {
@@ -72,7 +70,7 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
       arr.forEach(function (td) {
         if (!td.hasChildNodes() && (
           !window.inBattle && this.validStartPosition(td.getAttribute('id'))
-          || window.inBattle && this.Move.canMove(this.pos(), td.getAttribute('id'), this.getMoveSpeed()))
+          || window.inBattle && this.Move.canMake(this.pos(), td.getAttribute('id'), this.Type.getMoveSpeed()))
         ) {
           this.highlight(td);
         }
@@ -100,8 +98,9 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
       element.className = '';
   };
 
-  Unit.prototype.attack = function () {
+  Unit.prototype.attack = function (target) {
       console.log('attack');
+      this.Attack.attack(this, target);
       this.finishCourse();
   };
 
@@ -116,7 +115,7 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
 
       if (!this.pos() && this.validStartPosition(position) && !td.hasChildNodes()
         || !window.inBattle && !td.hasChildNodes() && this.validStartPosition(position)
-        || window.inBattle && this.Move.canMove(this.pos(), position, this.getMoveSpeed())
+        || window.inBattle && this.Move.canMake(this.pos(), position, this.Type.getMoveSpeed())
       ) {
         td.appendChild(document.getElementById(this.id));
         this.pos(position);
@@ -124,9 +123,13 @@ define(['./user/Types', './user/Move', './Abstract'], function (types, move, Abs
       this.finishCourse();
   };
 
+  Unit.prototype.setHealthBarPercent = function (percent) {
+    document.getElementById(this.id).firstChild.lastChild.style.width = percent + '%';
+  };
+
   Unit.prototype.die = function () {
-      console.log('die');
-      this.finishCourse();
+    this.finishCourse();
+    document.getElementById(this.id).remove();
   };
 
   Unit.prototype.canBuff = function () {

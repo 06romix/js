@@ -32,6 +32,13 @@ img.unit-icon {
   left: 3px;
 }
 
+#arena .health-bar {
+  height: 5px;
+  background-color: green;
+  width: 100%;
+  border: 2px solid #40c107;
+}
+
 div.wrapper > nav > button {
 
 }

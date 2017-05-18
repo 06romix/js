@@ -4,6 +4,7 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack'], function 
     var self = this;
     self.id   = id;
     self._side = side;
+    self._alive = true;
     self._pos  = (config.hasOwnProperty('position')) ? config.position  : null;
     self._buff = (config.hasOwnProperty('buff'))     ? config.buff      : null;
     self.Type = Types.getTypeInfo(config.type);
@@ -127,7 +128,12 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack'], function 
     document.getElementById(this.id).firstChild.lastChild.style.width = percent + '%';
   };
 
+  Unit.prototype.alive = function () {
+    return this._alive;
+  };
+
   Unit.prototype.die = function () {
+    this._alive = false;
     this.finishCourse();
     document.getElementById(this.id).remove();
   };

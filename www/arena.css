@@ -38,6 +38,10 @@ img.unit-icon {
   width: 100%;
   border: 2px solid #40c107;
 }
+#arena .red .health-bar {
+  background-color: #c70207;
+  border: 2px solid #f36361
+}
 
 div.wrapper > nav > button {
 

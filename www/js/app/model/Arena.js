@@ -107,6 +107,27 @@ define(['./Abstract'], function (Abstract) {
     if (window.currentUnit.blue) {
       window.currentUnit.blue.attack(unit);
     }
+    this.checkArmy();
+  };
+
+  Arena.prototype.checkArmy = function () {
+    var anyoneAlive = false;
+    console.log(this.red);
+    this.red.units.forEach(function (unit) {
+      if (unit.alive()) {
+        anyoneAlive = true;
+      }
+    });
+    if (!anyoneAlive) {
+      this.endGame();
+    }
+  };
+
+  Arena.prototype.endGame = function () {
+    setTimeout(function () {
+      alert('Victory');
+      location.reload();
+    }, 300);
   };
 
   Arena.prototype.prepareArena = function (army) {

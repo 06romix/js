@@ -1,24 +1,28 @@
+/**
+ * @module model/Tabs
+ */
 define(['./Tab'], function (Tab) {
 
-  function Tabs() {
-    var self = this;
-    self.tabs = {};
-    self.curentTab = null;
+  class Tabs {
+    constructor() {
+      this.tabs = {};
+      this.curentTab = null;
+    }
 
-    self.addTab = function (tab) {
+    addTab(tab) {
       if (tab instanceof Tab) {
-        self.tabs[tab.id] = tab;
+        this.tabs[tab.id] = tab;
       }
-    };
+    }
 
-    self.switch = function (id) {
-      if (id !== self.curentTab) {
-        for (var tabId in self.tabs) {
-          if (tabId !== id && self.tabs.hasOwnProperty(tabId)) {
-            self.tabs[tabId].clear();
+    switchTab(id) {
+      if (id !== this.curentTab) {
+        for (let tabId in this.tabs) {
+          if (tabId !== id && this.tabs.hasOwnProperty(tabId)) {
+            this.tabs[tabId].clear();
           }
         }
-        self.curentTab = id;
+        this.curentTab = id;
         return true;
       }
       return false;

@@ -1,64 +1,68 @@
+/**
+ * @module model/Player
+ */
 define(['../config/blue-army', '../config/red-army', './Army'], function (blue, red, Army) {
 
-  function Player(id, side) {
-    var self = this;
-    self._id = id;
-    self._side = side;
-    self._army = null;
-    var init = false;
+  class Player {
+    constructor(id, side) {
+      this._id = id;
+      this._side = side;
+      this._army = null;
+      this._init = false;
+    }
 
-    self.init = function () {
-      if (!init) {
-        init = true;
-        switch (self.side()) {
+    init() {
+      if (!this._init) {
+        this._init = true;
+        switch (this.side()) {
           case  blue.side:
-            self._army = blue;
+            this._army = blue;
             break;
           case red.side:
-            self._army = red;
+            this._army = red;
             break;
           default:
-            init = false;
+            this._init = false;
             console.error('Army don\'t set');
         }
-        if (self._army !== null) {
-          self._army = new Army(self._army).collect();
+        if (this._army !== null) {
+          this._army = new Army(this._army).collect();
         }
       }
-      return self;
+      return this;
+    }
+
+    getId() {
+      return this._id;
+    }
+
+    side(side) {
+      if (!arguments.length) return this._side;
+      this._side = side;
+      return this;
     };
 
-    self.getId = function () {
-      return self._id;
-    };
-
-    self.side = function (side) {
-      if (!arguments.length) return self._side;
-      self._side = side;
-      return self;
-    };
-
-    self.army = function (army) {
+    army(army) {
       if (!arguments.length) {
-        if (init) {
-          return self._army;
+        if (this._init) {
+          return this._army;
         } else {
           console.error('Player not init');
           return false;
         }
       }
-      switch (self.side()) {
+      switch (this.side()) {
         case  blue.side:
-          self._army = blue;
+          this._army = blue;
           break;
         case red.side:
-          self._army = red;
+          this._army = red;
           break;
         default:
           console.error('Army don\'t set');
       }
-      return self;
-    };
+      return this;
+    }
   }
 
   return Player;

@@ -1,44 +1,46 @@
+/**
+ * @module model/Tab
+ */
 define(function () {
 
-  function Tab(id, tabs) {
-    var self = this;
-    self.id = id;
-    self.source = document.getElementById(id);
-    self.article = null;
-    self._nav = null;
-    self.tabs = tabs;
-    self.tabs.addTab(self);
+  class Tab {
+    constructor(id, tabs) {
+      this.id = id;
+      this.source = document.getElementById(id);
+      this.article = null;
+      this._nav = null;
+      this.tabs = tabs;
+      this.tabs.addTab(this);
+    }
 
-    self.getArticle = function () {
-      var article = self.source.getElementsByTagName('article')[0];
+    getArticle() {
+      let article = this.source.getElementsByTagName('article')[0];
       if (typeof article !== 'undefined') {
-        self.article = article;
+        this.article = article;
       }
-      return self.article;
+      return this.article;
     };
 
-    self.clear = function () {
-      if (self.getArticle() !== null && self.getArticle().tagName === 'ARTICLE') {
-        self.article.remove();
+    clear() {
+      if (this.getArticle() !== null && this.getArticle().tagName === 'ARTICLE') {
+        this.article.remove();
       }
-      if (self.nav()) {
-        self.nav().innerHTML = '';
+      if (this.nav()) {
+        this.nav().innerHTML = '';
       }
-      return self;
+      return this;
     };
 
-    self.switch = function () {
-      if (self.tabs.switch(self.id)) {
-        self.article = document.createElement('article');
-        self.source.appendChild(self.article);
-        return self;
+    switchTab() {
+      if (this.tabs.switchTab(this.id)) {
+        this.article = document.createElement('article');
+        this.source.appendChild(this.article);
+        return this;
       }
       return false;
-    };
-  }
+    }
 
-  Tab.prototype = {
-    nav: function (button) {
+    nav(button) {
       if (!arguments.length) {
         if (this._nav === null) {
           this._nav = document.getElementById('right-nav');
@@ -48,7 +50,7 @@ define(function () {
       this._nav = button;
       return this;
     }
-  };
+  }
 
   return Tab;
 });

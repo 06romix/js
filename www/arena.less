@@ -1,0 +1,123 @@
+body {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+#arena {
+  width: 1000px;
+  height: 500px;
+  background: url('img/bg.jpg') center repeat;
+  margin: 0 auto;
+  td {
+    width: 95px;
+    height: 95px;
+    background-color: rgba(229, 229, 229, 0.24);
+    text-align: center;
+    position: relative;
+    &.move {
+      background: url("img/td_bg.png") rgba(0, 0, 0, 0);
+    }
+    &.attack {
+      background: url("img/td_bg_red.png") rgba(0, 0, 0, 0);
+    }
+    .health-bar {
+      height: 5px;
+      background-color: green;
+      width: 100%;
+      border: 2px solid #40c107;
+    }
+    .red .health-bar {
+      background-color: #c70207;
+      border: 2px solid #f36361
+    }
+  }
+
+}
+
+div.ra-hover {
+  width: 90px;
+  height: 90px;
+  input {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+  }
+  img.unit-icon {
+    height: 80px;
+    width: 80px;
+  }
+}
+
+div.wrapper > nav > button {
+
+}
+
+button {
+  outline: none;
+  border: none;
+  &:hover {
+    background-color: darkgray;
+  }
+}
+
+#right-nav {
+  text-align: right;
+}
+
+header {
+  width: 100%;
+  & > nav {
+    width: 49%;
+    display: inline-block;
+  }
+}
+
+header > nav > button, div.wrapper > nav > button {
+  padding: 5px 15px;
+  margin: 3px;
+  font-size: 20px;
+  font-family: fantasy;
+}
+
+#army-list {
+  input {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+  }
+  div {
+    position: relative;
+    display: inline-block;
+    width: 90px;
+    height: 90px;
+  }
+}
+
+#time-line {
+  height: 100px;
+  width: 1000px;
+  div[class^="item"] {
+    width: 100px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: inline-block;
+    &[class$="blue"] {
+      background-color: #7a6ef3;
+    }
+    &[class$="red"] {
+      background-color: #f36361;
+    }
+    div.ra-hover {
+      margin: 5px;
+      input {
+        display: none;
+      }
+    }
+  }
+}
+
+div.wrapper {
+  padding-top: 15px;
+  text-align: center;
+}

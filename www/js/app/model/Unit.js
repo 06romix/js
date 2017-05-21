@@ -1,119 +1,157 @@
-define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack'], function (Types, Abstract, Move, Attack) {
+/**
+ * @module model/Unit
+ */
+define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack', './TimeLine'],
+  function (Types, Abstract, Move, Attack, TimeLine) {
 
-  function Unit(id, config, side) {
-    var self = this;
-    self.id   = id;
-    self._side = side;
-    self._alive = true;
-    self._pos  = (config.hasOwnProperty('position')) ? config.position  : null;
-    self._buff = (config.hasOwnProperty('buff'))     ? config.buff      : null;
-    self.Type = Types.getTypeInfo(config.type);
-    self.Move = Move;
-    self.Attack = new Attack();
-    self.start  = 1;
-    self._light = false;
-    self.initPosBySide();
-    self.mX = 9;
-    self.mY = 7;
+  class Unit extends Abstract {
+    constructor(id, config, side) {
+      super();
+      /**
+       * @constructor
+       * @property {Type} Type
+       * @property {Move} Move
+       * @property {Attack} Attack
+      */
+      this._id    = id;
+      this._side  = side;
+      this._alive = true;
+      this._pos   = (config.hasOwnProperty('position')) ? config.position  : null;
+      this._buff  = (config.hasOwnProperty('buff'))     ? config.buff      : null;
+      this.Type   = Types.getTypeInfo(config.type);
+      this.Move   = Move;
+      this.Attack = new Attack();
+      this._show  = {move: false, attack: false};
+      this._start = 1;
+      this.mX     = 9;
+      this.mY     = 7;
 
-    self.toHtml = function () {
-      // if (!self.html) {
-      var div = document.createElement('div');
-      div.setAttribute('id', id);
-      div.className = self.getSide() + ' ra-hover';
-      var input = document.createElement('input');
-      input.setAttribute('id', 'i' + id);
+      this.initPosBySide();
+    }
+
+    get id() {
+      return this.getSide('short') + this._id;
+    }
+
+    get initiative()
+    {
+      return this.Type.getInitiative();
+    }
+
+    toHtml(data = '') {
+      let div = document.createElement('div');
+      div.setAttribute(data + 'id', this.id);
+      div.className = this.getSide() + ' ra-hover';
+      let input = document.createElement('input');
+      input.setAttribute(data + 'id', 'i' + this.id);
       input.setAttribute('type', 'radio');
-      input.setAttribute('name', self.getSide());
-      var label = document.createElement('label');
+      input.setAttribute('name', this.getSide());
+      let label = document.createElement('label');
       label.appendChild(input);
-      var img = document.createElement('img');
-      img.src = 'img/' + self.Type.getIcon() + '.png';
+      let img = document.createElement('img');
+      img.src = 'img/' + this.Type.getIcon() + '.png';
       img.className = 'unit-icon';
       label.appendChild(img);
-      var hp = document.createElement('div');
+      let hp = document.createElement('div');
       hp.className = 'health-bar';
       label.appendChild(hp);
       div.appendChild(label);
-      self.html = div;
-      // }
-      return self.html;
-    };
-  }
+      return div;
+    }
 
-  Unit.prototype = Object.create(Abstract.prototype);
+    toQueueObj()
+    {
+      return {id: this.id, initiative: 100 - this.initiative};
+    }
 
-  Unit.prototype.pos = function (pos) {
+    pos(pos) {
       if (!arguments.length) {
         return this._pos;
       }
       this._pos = pos;
       return this._pos;
-  };
+    }
 
-  Unit.prototype.initPosBySide = function () {
-      if (this.getSide() == 'red') {
-        var y = String(this.pos()).charAt(0);
-        var x = String(this.pos()).charAt(1);
+    initPosBySide() {
+      if (this.getSide() === 'red') {
+        let y = String(this.pos()).charAt(0);
+        let x = String(this.pos()).charAt(1);
         this.pos(y + (Math.abs(+x - 8) + 1));
       }
-  };
+    }
 
-  Unit.prototype.validStartPosition = function (pos) {
-      return this.getSide() == 'blue'
-        ? (String(pos).charAt(1) <= this.start)
-        : ((Math.abs(String(pos).charAt(1) - this.mX) + 1) >= Math.abs(this.start - this.mX) + 1);
-  };
+    validStartPosition(pos) {
+      return this.getSide() === 'blue'
+        ? (String(pos).charAt(1) <= this._start)
+        : ((Math.abs(String(pos).charAt(1) - this.mX) + 1) >= Math.abs(this._start - this.mX) + 1);
+    }
 
-  Unit.prototype.showMoveVariants = function () {
-      if (this._light) return;
-      var arr = document.querySelectorAll('#arena td');
+    showMoveVariants() {
+      if (this._show.move) return;
+      let arr = document.querySelectorAll('#arena td');
       arr.forEach(function (td) {
+        /**
+         * @var this Unit
+         * @property {Move} Move
+         * @property Type} Type
+         */
         if (!td.hasChildNodes() && (
           !window.inBattle && this.validStartPosition(td.getAttribute('id'))
           || window.inBattle && this.Move.canMake(this.pos(), td.getAttribute('id'), this.Type.getMoveSpeed()))
         ) {
-          this.highlight(td);
+          Unit.highlight(td, 'move');
         }
       }, this);
-      this._light = true;
-  };
+      this._show.move = true;
+    }
 
-  Unit.prototype.hideMoveVariants = function () {
-      var arr = document.querySelectorAll('#arena td');
+    showAttackVariants() {
+      if (this._show.attack) return;
+      let arr = document.querySelectorAll('#arena td');
       arr.forEach(function (td) {
-        this.disableLight(td);
+        if (td.hasChildNodes() && window.inBattle
+          && Abstract.getInfoByDiv(td.firstChild).side !== window.side
+          && this.Attack.canMake(this.pos(), td.getAttribute('id'), this.Type.getRange())
+        ) {
+          Unit.highlight(td, 'attack');
+        }
       }, this);
-      this._light = false;
-  };
+      this._show.attack = true;
+    }
 
-  Unit.prototype.highlight = function (element) {
+    hideVariants() {
+      let arr = document.querySelectorAll('#arena td');
+      arr.forEach(function (td) {
+        Unit.disableLight(td);
+      }, this);
+      this._show.move = this._show.attack = false;
+    }
+
+    static highlight(element, action) {
       if (element.className) {
-        element.className += ' light';
+        element.className += ' ' . action;
       } else {
-        element.className = 'light';
+        element.className = action;
       }
-  };
+    }
 
-  Unit.prototype.disableLight = function (element) {
+    static disableLight(element) {
       element.className = '';
-  };
+    }
 
-  Unit.prototype.attack = function (target) {
-      console.log('attack');
+    attack(target) {
       this.Attack.attack(this, target);
       this.finishCourse();
-  };
+    }
 
-  Unit.prototype.move = function (position) {
+    move(position) {
       console.log('move to: ' + position);
       if (position < 10 || position > +(this.mY + '' + this.mX)) {
         console.error('!');
         return false;
       }
 
-      var td = document.getElementById(position);
-
+      let td = document.getElementById(position);
       if (!this.pos() && this.validStartPosition(position) && !td.hasChildNodes()
         || !window.inBattle && !td.hasChildNodes() && this.validStartPosition(position)
         || window.inBattle && this.Move.canMake(this.pos(), position, this.Type.getMoveSpeed())
@@ -122,40 +160,42 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack'], function 
         this.pos(position);
       }
       this.finishCourse();
-  };
+    }
 
-  Unit.prototype.setHealthBarPercent = function (percent) {
-    document.getElementById(this.id).firstChild.lastChild.style.width = percent + '%';
-  };
+    setHealthBarPercent(percent) {
+      document.getElementById(this.id).firstChild.lastChild.style.width = percent + '%';
+    }
 
-  Unit.prototype.alive = function () {
-    return this._alive;
-  };
+    alive() {
+      return this._alive;
+    }
 
-  Unit.prototype.die = function () {
-    this._alive = false;
-    this.finishCourse();
-    document.getElementById(this.id).remove();
-  };
+    die() {
+      this._alive = false;
+      this.finishCourse();
+      document.getElementById(this.id).remove();
+    }
 
-  Unit.prototype.canBuff = function () {
+    canBuff() {
       return this._buff;
-  };
+    }
 
-  Unit.prototype.buff = function (unit) {
+    buff(unit) {
       //TODO: buff
       this.finishCourse();
-  };
+    }
 
-  Unit.prototype.finishCourse = function () {
+    finishCourse() {
       this.deselect();
-      this.hideMoveVariants();
-  };
+      this.hideVariants();
+      TimeLine.next();
+    }
 
-  Unit.prototype.deselect = function () {
+    deselect() {
       document.getElementById('i' + this.id).checked = false;
       window.currentUnit.blue = null;
-  };
+    }
+  }
 
   return Unit;
 });

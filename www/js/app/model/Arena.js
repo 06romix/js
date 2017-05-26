@@ -49,7 +49,7 @@ define(['./Abstract', './Army'], function (Abstract, Army) {
             case 'IMG':
               let targetInfo = Abstract.getInfoByDiv(target.parentNode.parentNode);
               if (targetInfo.side === 'blue') {
-                this.blue.selectUnit(target);
+                this.blue.buff(target);
               } else {
                 this.attack(targetInfo);
               }
@@ -161,7 +161,9 @@ define(['./Abstract', './Army'], function (Abstract, Army) {
         this.queue = this.TimeLine.getQueue();
       }
 
-      this.blue.selectUnit(false, this.queue.first());
+      let a = this.queue.first();
+
+      this.blue.selectUnit(false, a, this.red);
     }
 
     showRedArmy() {

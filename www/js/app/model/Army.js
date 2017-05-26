@@ -18,25 +18,25 @@ define(['./Unit', './Abstract', './unit/UnitCollection'], function (Unit, Abstra
       return this;
     }
 
-    selectUnit(target, unitId = false)
+    selectUnit(target, unitId = false, redArmy = false)
     {
       if (window.currentUnit.blue) {
         window.currentUnit.blue.hideVariants();
         console.log('hide');
       }
+      window.currentUnit.blue = window.currentUnit.red = null;
+
       if (unitId || (target = target.parentNode.parentNode).tagName === 'DIV') {
         let id = unitId ? unitId : target.getAttribute('id');
         let side = id.charAt(0);
         if (side === 'b') {
           window.currentUnit.blue = this.units.getItem(id);
-        } else {
-          window.currentUnit.blue = this.units.getItem(id);
-        }
-
-        if (window.currentUnit.blue && side === 'b') {
           window.currentUnit.blue.showMoveVariants();
           window.currentUnit.blue.showAttackVariants();
+        } else {
+          window.currentUnit.red = redArmy.units.getItem(id);
         }
+        document.getElementById('i' + id).checked = true;
       }
     }
 

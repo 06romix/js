@@ -32,7 +32,7 @@ define(['../config/blue-army', '../config/red-army', './Army'], function (blue, 
       return this;
     }
 
-    getId() {
+    get id() {
       return this._id;
     }
 

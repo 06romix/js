@@ -37,14 +37,18 @@ define(['./unit/UnitCollection', '../view/TimeLineView', './queue/Queue'],
       this.view.render();
     }
 
+    static removeFirst()
+    {
+      let wrapper = document.getElementById(TimeLineView.wrapperClassName);
+      if (wrapper.hasChildNodes()) {
+        wrapper.firstChild.remove();
+      }
+    }
+
     getQueue()
     {
       let Queue = new this.Queue(this._collection.toArray());
       return Queue.generateQueue();
-    }
-
-    static next() {
-
     }
   }
 

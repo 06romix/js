@@ -17,9 +17,17 @@ define(['../model/Player', '../model/TimeLine'], function (Player, TimeLine) {
         window.inBattle = true;
         window.currentUnit = {blue: null, red: null};
         document.querySelector('.start').remove();
+        this._arena.nextUnit();
       }.bind(this);
-      window.next = function () {
-        window.currentUnit.blue = this._arena.nextUnit();
+      window.nextUnit = function () {
+        this._arena.nextUnit();
+
+        // TODO: War auto step
+        if (window.currentUnit.red !== null) {
+          console.log(window.currentUnit.red);
+          window.currentUnit.red.finishCourse();
+        }
+
       }.bind(this);
     }
 

@@ -12,6 +12,11 @@ define(function () {
       this._array = Array;
     }
 
+    static get wrapperClassName()
+    {
+      return 'time-line'
+    }
+
     render()
     {
       document.getElementById('arena').parentNode.appendChild(this.toHtml());
@@ -20,7 +25,7 @@ define(function () {
     toHtml()
     {
       let div = document.createElement('div');
-      div.setAttribute('id', 'time-line');
+      div.setAttribute('id', TimeLineView.wrapperClassName);
       this._array.forEach(function (Item) {
         let item = document.createElement('div');
         item.className = 'item-' + Item.getSide();

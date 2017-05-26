@@ -24,6 +24,11 @@ define(function () {
         }
         return false;
       }, this);
+
+      if (result === true) {
+        // console.log(this);
+      }
+
       return result;
     }
   }

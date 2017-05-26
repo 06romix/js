@@ -20,7 +20,7 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack', './TimeLin
       this._buff  = (config.hasOwnProperty('buff'))     ? config.buff      : null;
       this.Type   = Types.getTypeInfo(config.type);
       this.Move   = Move;
-      this.Attack = new Attack();
+      this.Attack = Attack;
       this._show  = {move: false, attack: false};
       this._start = 1;
       this.mX     = 9;
@@ -121,9 +121,7 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack', './TimeLin
 
     hideVariants() {
       let arr = document.querySelectorAll('#arena td');
-      arr.forEach(function (td) {
-        Unit.disableLight(td);
-      }, this);
+      arr.forEach(Unit.disableLight);
       this._show.move = this._show.attack = false;
     }
 
@@ -182,13 +180,17 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack', './TimeLin
 
     buff(unit) {
       //TODO: buff
+      console.log(this.canBuff());
       this.finishCourse();
     }
 
     finishCourse() {
       this.deselect();
       this.hideVariants();
-      TimeLine.next();
+      if (window.inBattle) {
+        TimeLine.removeFirst();
+        window.nextUnit();
+      }
     }
 
     deselect() {

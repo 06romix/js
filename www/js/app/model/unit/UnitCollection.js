@@ -25,6 +25,9 @@ define(['../core/Collection'], function (Collection) {
     getSortUnits()
     {
       this._arr = this.toArray().sort(function (Unit1, Unit2) {
+        if (Unit1.initiative === Unit2.initiative) {
+          return Unit1.getSide() > Unit2.getSide();
+        }
         return Unit1.initiative < Unit2.initiative;
       });
       return this._arr;

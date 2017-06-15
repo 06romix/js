@@ -11,23 +11,14 @@ define(function () {
     first() {
       let result = true;
       this.every(function (item, id) {
-        if (typeof item === 'string') {
+        if (item instanceof QueueArray) {
+          result = this[id].first();
+        } else {
           result = item;
           delete this[id];
-        } else {
-          if (this[id]) {
-            result = this[id].first();
-          }
-          if (result === true ) {
-            return true;
-          }
         }
-        return false;
+        return result === true;
       }, this);
-
-      if (result === true) {
-        // console.log(this);
-      }
 
       return result;
     }

@@ -31,6 +31,7 @@ define(['./Unit', './Abstract', './unit/UnitCollection'], function (Unit, Abstra
         let side = id.charAt(0);
         if (side === 'b') {
           window.currentUnit.blue = this.units.getItem(id);
+          document.getElementById(id).classList.add('select');
           window.currentUnit.blue.showMoveVariants();
           window.currentUnit.blue.showAttackVariants();
         } else {

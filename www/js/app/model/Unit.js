@@ -195,6 +195,7 @@ define(['./unit/Types', './Abstract', './unit/Move', './unit/Attack', './TimeLin
 
     deselect() {
       document.getElementById('i' + this.id).checked = false;
+      document.getElementById(this.id).classList.remove('select');
       window.currentUnit.blue = null;
     }
   }
